@@ -1,0 +1,14 @@
+config {
+    type: "view"
+}
+
+with cte as (
+SELECT location_id, review_name, created_date, rating, comment_native, comment_en, update_date, reply,
+reply_date, reply_comment, response_time, reply_after_review, split(review_name, '/')[safe_offset(1)] as client_account
+FROM `myfirstgmb-249012.gmb.review` 
+where comment_en is not null
+)
+SELECT location_id, review_name, created_date, rating, comment_native, comment_en, update_date, reply,
+reply_date, reply_comment, response_time, reply_after_review, client_account
+from cte
+where client_account not in (select distinct client_account from `up-analytics-test.dataform.reviews_table`)

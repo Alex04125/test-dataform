@@ -1,0 +1,16 @@
+config {
+    type: "view"
+}
+
+with cte as (
+SELECT location_id, review_name, created_date, rating, comment_native, comment_en, update_date, reply,
+reply_date, reply_comment, response_time, reply_after_review, split(review_name, '/')[safe_offset(1)] as client_account
+FROM `myfirstgmb-249012.gmb.review`
+where comment_en is not null
+)
+SELECT location_id, review_name, created_date, rating, comment_native, comment_en, update_date, reply,
+reply_date, reply_comment, response_time, reply_after_review, novi.client_account
+from cte as novi
+join (WITH CTE AS (select client_account, created_date from `up-analytics-test.dataform.reviews_table`)select client_account, max(created_date) as max_date from cte group by client_account) as old
+on novi.client_account = old.client_account
+where novi.created_date > old.max_date
