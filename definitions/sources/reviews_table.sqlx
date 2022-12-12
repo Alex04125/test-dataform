@@ -1,12 +1,15 @@
 config {
-    type: "incremental"
+    type: "incremental",
+    bigquery: {
+    partitionBy: "client_account"
+  }
 }
 
 with cte as 
 (
-select new_reviews.location_id, new_reviews.review_name, new_reviews.created_date, new_reviews.rating, new_reviews.comment_native, new_reviews.comment_en, new_reviews.update_date, new_reviews.reply,
-new_reviews.reply_date, new_reviews.reply_comment, new_reviews.response_time, new_reviews.reply_after_review, new_reviews.client_account,`up-analytics-test.dataform.sentiment`(to_json(new_reviews.comment_en)) as result
-from ${ref("new_reviews")} as new_reviews inner join ${ref("new_client")} as new_client on new_reviews.client_account=new_client.client_account
+select location_id, review_name, created_date, rating, comment_native, comment_en, update_date, reply,
+reply_date, reply_comment, response_time, reply_after_review, client_account,`up-analytics-test.dataform.sentiment`(to_json(comment_en)) as result
+from ${ref("new_reviews")} 
 )
 select location_id, review_name, created_date, rating, comment_native, comment_en, update_date, reply,
 reply_date, reply_comment, response_time, reply_after_review, client_account, cast(split(right(result, length(result) - 1), ',')[offset(0)] as float64) as overall_sentiment,
