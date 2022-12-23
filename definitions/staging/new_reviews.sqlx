@@ -13,4 +13,4 @@ reply_date, reply_comment, response_time, reply_after_review, novi.client_accoun
 from cte as novi
 join (WITH CTE AS (select client_account, created_date from `up-analytics-test.dataform.reviews_table`)select client_account, max(created_date) as max_date from cte group by client_account) as old
 on novi.client_account = old.client_account
-where novi.created_date > old.max_date or novi.client_account not in (select distinct client_account from `up-analytics-test.dataform.reviews_table`)
+where novi.created_date >= old.max_date or novi.client_account not in (select distinct client_account from `up-analytics-test.dataform.reviews_table`)
